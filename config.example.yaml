@@ -1,0 +1,7 @@
+series: KXBTC15M
+entry_price: "0.25"
+take_profit_price: "0.40"
+contracts: "1"
+trade_up: true
+trade_down: true
+min_seconds_before_close: 60

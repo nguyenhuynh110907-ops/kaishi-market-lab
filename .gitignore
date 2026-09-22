@@ -1,0 +1,27 @@
+.DS_Store
+._*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Local credentials and machine-specific configuration
+.env
+.env.*
+*.pem
+*.key
+config.yaml
+research_capture.yaml
+
+# Local trading/research state; never publish account data or model artifacts
+*.sqlite3
+*.sqlite3-*
+*.sqlite3.*
+*.lock
+*.log
+logs/
+data/
+artifacts/

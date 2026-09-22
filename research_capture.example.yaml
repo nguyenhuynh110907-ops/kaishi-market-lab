@@ -1,0 +1,15 @@
+research_capture:
+  enabled: false
+  root: data/research
+  assets: [BTC, ETH, SOL, XRP, DOGE]
+  persist_market_metadata: true
+  persist_rti: true
+  persist_contract_quotes: true
+  persist_orderbook: false
+  orderbook_depth: 10
+  compression: zstd
+  writer_batch_rows: 50000
+  flush_interval_seconds: 300
+  metadata_refresh_seconds: 15
+  stale_after_seconds: 3
+  queue_maxsize: 10000

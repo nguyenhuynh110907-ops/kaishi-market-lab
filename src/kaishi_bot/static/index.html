@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaishi — 15m Market Lab</title>
+  <link rel="stylesheet" href="/static/app.css?v=model-registry-1">
+</head>
+<body data-mode="paper">
+  <header class="topbar">
+    <div class="brand"><span class="mark">K</span><div><b>KAISHI</b><small>15M MARKET LAB</small></div></div>
+    <div class="mode-switch" role="group" aria-label="Chế độ tài khoản">
+      <button data-mode-value="paper" class="active">Paper</button>
+      <button data-mode-value="read_only">API xem</button>
+      <button data-mode-value="live">API Live</button>
+    </div>
+    <label class="bot-switch"><span>BOT</span><input id="bot-toggle" type="checkbox"><i></i></label>
+    <div class="connection"><i></i><span id="connection-label">Đang kết nối</span></div>
+  </header>
+
+  <main>
+    <section class="account-strip" aria-label="Tổng quan tài khoản">
+      <div><small id="cash-label">Vốn khả dụng</small><strong id="cash">$1,000.00</strong></div>
+      <div><small id="equity-label">Tổng tài sản</small><strong id="equity">$1,000.00</strong></div>
+      <div><small id="realized-label">P&amp;L đã chốt</small><strong id="realized">$0.00</strong></div>
+      <div><small id="unrealized-label">P&amp;L đang chạy</small><strong id="unrealized">$0.00</strong></div>
+      <div class="risk-meter"><small id="daily-label">Ngân sách hôm nay</small><span id="daily-text">Đã dùng $0.00 · Giới hạn $1,000.00 · Còn $1,000.00</span><span class="meter-track"><i id="daily-bar"></i></span></div>
+    </section>
+
+    <nav class="tabs" aria-label="Khu vực dashboard">
+      <button class="active" data-tab="market">Thị trường</button>
+      <button data-tab="lab">Strategy Lab</button>
+    </nav>
+
+    <section id="market-tab" class="tab-panel active">
+      <div id="market-grid" class="market-grid" aria-live="polite"></div>
+      <aside class="console">
+        <div class="console-head"><small>CONTROL DECK</small><h2>Luật vào &amp; thoát</h2></div>
+        <label class="logging-toggle logging-toggle-prominent"><span><b>GHI DỮ LIỆU SQL</b><small>Tự lưu ngay · Tắt vẫn xem giá và giao dịch realtime.</small></span><input id="log-quotes-toggle" type="checkbox"></label>
+        <form id="settings-form">
+          <div id="price-band-control" class="price-band-control">
+            <div class="price-band-head"><b>Vùng giá chiến lược</b><small>Kéo 4 điểm hoặc nhập số chính xác bên dưới</small></div>
+            <div class="price-band-track" aria-label="Thanh giá SL, vùng mua và TP">
+              <i class="loss-zone"></i><i class="buy-zone"></i><i class="profit-zone"></i>
+              <input type="range" min="1" max="99" step="1" data-price-field="stop_loss" aria-label="Stop Loss">
+              <input type="range" min="1" max="99" step="1" data-price-field="entry_min" aria-label="Entry thấp nhất">
+              <input type="range" min="1" max="99" step="1" data-price-field="entry_price" aria-label="Entry cao nhất">
+              <input type="range" min="1" max="99" step="1" data-price-field="take_profit" aria-label="Take Profit">
+            </div>
+            <div class="price-band-labels">
+              <span class="sl">SL <b data-price-output="stop_loss">—</b></span>
+              <span class="entry-low">Mua từ <b data-price-output="entry_min">—</b></span>
+              <span class="entry-high">đến <b data-price-output="entry_price">—</b></span>
+              <span class="tp">TP <b data-price-output="take_profit">—</b></span>
+            </div>
+          </div>
+          <div id="time-window-control" class="time-window-control">
+            <div class="time-window-head"><b>Cửa sổ mở Entry</b><small>TP/SL vẫn chạy ngoài vùng sáng</small></div>
+            <div class="time-window-track" aria-label="Khoảng thời gian được mở lệnh trong phiên 15 phút">
+              <i class="time-window-active"></i>
+              <input name="entry_start_seconds" type="range" min="0" max="900" step="15" data-time-field="start" aria-label="Bắt đầu mở Entry">
+              <input name="entry_end_seconds" type="range" min="0" max="900" step="15" data-time-field="end" aria-label="Dừng mở Entry">
+            </div>
+            <div class="time-window-labels"><span>00:00</span><b>Bắt đầu <i data-time-output="start">00:00</i></b><b>Dừng <i data-time-output="end">15:00</i></b><span>15:00</span></div>
+          </div>
+          <div class="price-band-fields">
+            <label>Stop Loss <span>chạm dưới thì bán</span><input name="stop_loss" type="number" min="0.01" max="0.98" step="0.01"></label>
+            <label>Entry thấp nhất <span>không mua thấp hơn</span><input name="entry_min" type="number" min="0.01" max="0.98" step="0.01"></label>
+            <label>Entry cao nhất <span>không mua cao hơn</span><input name="entry_price" type="number" min="0.01" max="0.98" step="0.01"></label>
+            <label>Take Profit <span>chạm trên thì bán</span><input name="take_profit" type="number" min="0.02" max="0.99" step="0.01"></label>
+          </div>
+          <label>Tiền mỗi lệnh <span>tối đa $200</span><input name="entry_amount" type="number" min="0.01" max="200" step="0.01"></label>
+          <label class="paper-only">Giới hạn Paper mỗi ngày <span>tối đa $10,000</span><input name="paper_daily_cap" type="number" min="0.01" max="10000" step="0.01"></label>
+          <div class="guard-note"><b>Bảo vệ tự động</b><span id="guard-summary">Đang tính luật vào lệnh…</span><small>Spread và độ sâu sổ lệnh được kiểm tra ngay trước mỗi IOC.</small></div>
+          <button class="primary" type="submit">Lưu chiến lược</button>
+        </form>
+        <div id="asset-toggles" class="asset-toggles"></div>
+        <div id="live-panel" class="live-panel" hidden>
+          <b id="live-status">LIVE ĐANG KHÓA</b><p id="live-status-detail">Chưa thể gửi lệnh thật.</p>
+          <p id="live-alert" class="live-alert" hidden></p>
+          <p id="live-protection" class="live-protection">Chưa có vị thế cần bảo vệ.</p>
+          <label>Giới hạn Live mỗi ngày <span>tối đa $10,000</span><input name="daily_cap" form="settings-form" type="number" min="0.01" max="10000" step="0.01"></label>
+          <button id="arm-live" type="button">Xác nhận bật Live</button>
+          <button id="disarm-live" type="button">Tắt Live</button>
+        </div>
+      </aside>
+      <section class="ledger">
+        <div><small id="positions-title">VỊ THẾ ĐANG MỞ</small><div id="positions" class="table-wrap"></div></div>
+        <div class="session-ledger"><small id="activity-title">DỮ LIỆU THEO PHIÊN 15 PHÚT</small><div id="paper-sessions" class="paper-sessions"></div></div>
+      </section>
+    </section>
+
+    <section id="lab-tab" class="tab-panel">
+      <div class="lab-hero">
+        <div><small>FORWARD TEST / CÙNG MỘT LUỒNG GIÁ</small><h1>25.000 chiến lược.<br><em>5.000 mỗi coin · Không một lệnh thật.</em></h1></div>
+        <div class="lab-actions"><label>Dùng lịch sử<input id="lab-history-cycles" type="number" min="0" max="96" step="1" value="12"> chu kỳ trước</label><label>Chạy realtime<input id="lab-hours" type="number" min="0.25" max="24" step="0.25" value="3"> giờ</label><button id="start-lab" class="primary">Chạy Strategy Lab</button><button id="stop-lab" class="secondary" hidden>Dừng Run hiện tại</button></div>
+      </div>
+      <div id="lab-status" class="lab-status" role="status" aria-live="polite">Chưa có phiên thử nghiệm.</div>
+      <section class="model-registry" aria-labelledby="model-registry-title">
+        <div class="registry-head">
+          <div><small>MODEL REGISTRY · PAPER EXECUTION</small><h2 id="model-registry-title">Research Models</h2><p>So sánh artifact và chạy model trực tiếp trên tài khoản Paper. Lệnh dùng ASK/BID realtime, tính phí và P&amp;L; Control Deck sẽ tự tắt, Live vẫn bị cô lập hoàn toàn.</p></div>
+          <button id="refresh-models" class="secondary" type="button">Làm mới model</button>
+        </div>
+        <div id="model-shadow-status" class="model-shadow-status" aria-live="polite"></div>
+        <div id="model-registry-list" class="model-registry-list"><p class="empty">Đang quét artifact…</p></div>
+      </section>
+      <div class="leaderboard"><div class="leader-head"><h2>Bảng xếp hạng</h2><span>Dữ liệu ngắn hạn chỉ dùng để sàng lọc ban đầu</span></div><div id="leaderboard"></div></div>
+    </section>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/lab_activity.js?v=live-ledger-5"></script>
+  <script src="/static/price_band.js?v=live-ledger-5"></script>
+  <script src="/static/settings_form.js?v=live-ledger-5"></script>
+  <script src="/static/paper_sessions.js?v=live-ledger-5"></script>
+  <script src="/static/live_sessions.js?v=live-ledger-6"></script>
+  <script src="/static/time_window.js?v=live-ledger-5"></script>
+  <script src="/static/app.js?v=model-registry-1"></script>
+</body>
+</html>

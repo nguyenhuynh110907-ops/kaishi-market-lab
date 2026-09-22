@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kaishi-bot"
+version = "0.1.0"
+description = "Demo-only Kalshi KXBTC15M threshold and take-profit bot"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "kalshi-sdk>=3,<8",
+  "numpy>=2.1,<3",
+  "pydantic>=2.10,<3",
+  "PyYAML>=6.0.2,<7",
+  "typer>=0.15,<1",
+  "uvicorn>=0.35,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3,<9", "pytest-asyncio>=0.25,<1"]
+research = ["pyarrow>=18,<22"]
+ml = ["xgboost>=3,<4"]
+
+[project.scripts]
+bot = "kaishi_bot.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kaishi_bot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
